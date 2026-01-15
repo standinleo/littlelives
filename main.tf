@@ -68,7 +68,7 @@ module "elastic_beanstalk" {
   db_secret_arn              = module.rds.secret_arn
 }
 
-module "security" {
+module "security_config" {
   source = "./modules/security"
 
   vpc_id        = module.network.vpc_id
@@ -82,6 +82,5 @@ locals {
   tags = {
     Environment = var.environment
     Project     = var.project_name
-    ManagedBy   = "Terraform"
   }
 }
