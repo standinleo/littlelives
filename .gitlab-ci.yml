@@ -14,10 +14,13 @@ stages:
 variables:
   TF_VAR_project_name: ${PROJECT_NAME}
   TF_VAR_environment: ${ENVIRONMENT}
+  GIT_SUBMODULE_STRATEGY: recursive
   
 init:
   stage: init
   script:
+    - git submodule sync
+    - git submodule update --init
     - terraform init 
   artifacts:
     paths:
@@ -43,21 +46,24 @@ plan:
 apply:
   stage: apply
   script:
-    - terraform apply -input=false "tfplan"
-    - terraform output > terraform-output.txt
-  artifacts:
-    paths:
-      - terraform-output.txt
-  when: manual
+    - echo "terraform plan done"
+   # - terraform apply -input=false "tfplan"
+   # - terraform output > terraform-output.txt
+  #artifacts:
+   # paths:
+    #  - terraform-output.txt
+ # when: manual
 
 build:
   stage: build
   needs:
     - apply
   script:
-    - git submodule sync
-    - git submodule update --init
+    #- git submodule sync
+    #- git submodule update --init
+    - git clone https://github.com/ditsmod/realworld.git
     - cd app
+    - apk add zip
     - zip -r ../application.zip . #Zip application to file name in root directory
   artifacts:
     paths:
