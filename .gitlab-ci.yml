@@ -56,8 +56,9 @@ build:
   needs:
     - apply
   script:
-    - git submodule sync
-    - git submodule update --init
+    #- git submodule sync
+    #- git submodule update --init
+    - git clone https://github.com/ditsmod/realworld.git
     - cd realworld
     - apk add zip
     - zip -r ../application.zip . #Zip application to file name in root directory
