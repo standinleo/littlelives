@@ -43,12 +43,13 @@ plan:
 apply:
   stage: apply
   script:
-    - terraform apply -input=false "tfplan"
-    - terraform output > terraform-output.txt
-  artifacts:
-    paths:
-      - terraform-output.txt
-  when: manual
+    - echo "terraform plan done"
+   # - terraform apply -input=false "tfplan"
+   # - terraform output > terraform-output.txt
+  #artifacts:
+   # paths:
+    #  - terraform-output.txt
+ # when: manual
 
 build:
   stage: build
