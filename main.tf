@@ -68,7 +68,7 @@ module "elastic_beanstalk" {
   db_secret_arn              = module.rds.secret_arn
 }
 
-module "security_config" {
+module "security" {
   source = "./modules/security"
 
   vpc_id        = module.network.vpc_id
