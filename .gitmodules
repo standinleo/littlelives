@@ -1,3 +1,3 @@
 [submodule "app"]
-    path = app
-    url = https://github.com/ditsmod/realworld.git
+	path = app
+	url = https://github.com/ditsmod/realworld.git
