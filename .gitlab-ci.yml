@@ -1,0 +1,99 @@
+image:
+  name: hashicorp/terraform:1.14
+
+stages:
+  - init
+  - validate
+  - plan
+  - apply
+  - build
+  - deploy
+  - destroy
+
+variables:
+  TF_VAR_project_name: ${PROJECT_NAME}
+  TF_VAR_environment: ${ENVIRONMENT}
+  
+init:
+  stage: init
+  script:
+    - terraform init 
+  artifacts:
+    paths:
+      - .terraform/
+      - .terraform.lock.hcl
+
+validate:
+  stage: validate
+  script:
+    - terraform fmt -check -recursive
+    - terraform validate
+
+plan:
+  stage: plan
+  script:
+    - terraform plan -out "tfplan"
+    - terraform show -no-color tfplan > tfplan.txt
+  artifacts:
+    paths:
+      - tfplan
+      - tfplan.txt
+
+apply:
+  stage: apply
+  script:
+    - terraform apply -input=false "tfplan"
+    - terraform output > terraform-output.txt
+  artifacts:
+    paths:
+      - terraform-output.txt
+  when: manual
+
+build:
+  stage: build
+  needs:
+    - apply
+  script:
+    - git submodule sync
+    - git submodule update --init
+    - cd app
+    - zip -r ../application.zip . #Zip application to file name in root directory
+  artifacts:
+    paths:
+      - application.zip
+
+deploy:
+  stage: deploy
+  needs:
+    - build
+  script:
+    - |
+
+      # Upload application zip to S3 deployment bucket
+      aws s3 cp application.zip s3://${PROJECT_NAME}-deployment-${ENVIRONMENT}/
+      
+      # Create Elastic Beanstalk application version
+      VERSION_LABEL="v$(date +%Y%m%d-%H%M%S)"
+      aws elasticbeanstalk create-application-version \
+        --region ${AWS_DEFAULT_REGION} \
+        --application-name ${PROJECT_NAME} \
+        --version-label ${VERSION_LABEL} \
+        --source-bundle S3Bucket="${PROJECT_NAME}-deployment-${ENVIRONMENT}",S3Key="application.zip"
+      
+      # Update Elastic Beanstalk environment with new version
+      aws elasticbeanstalk update-environment \
+        --region ${AWS_DEFAULT_REGION} \
+        --environment-name ${PROJECT_NAME}-${ENVIRONMENT} \
+        --version-label ${VERSION_LABEL}
+      
+      # Wait for deployment to complete
+      aws elasticbeanstalk wait environment-updated \
+        --region ${AWS_DEFAULT_REGION} \
+        --environment-name ${PROJECT_NAME}-${ENVIRONMENT}
+  when: manual
+
+destroy:
+  stage: destroy
+  script:
+    - terraform destroy --auto-approve
+  when: manual
