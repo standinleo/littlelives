@@ -1,6 +1,6 @@
 image:
   name: hashicorp/terraform:1.14
-  entrypoint: [""]
+  entrypoint: ["/bin/sh"]
 
 stages:
   - init
@@ -59,6 +59,7 @@ build:
     - git submodule sync
     - git submodule update --init
     - cd app
+    - apk add zip
     - zip -r ../application.zip . #Zip application to file name in root directory
   artifacts:
     paths:
