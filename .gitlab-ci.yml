@@ -58,7 +58,7 @@ build:
   script:
     - git submodule sync
     - git submodule update --init
-    - cd app
+    - cd realworld
     - apk add zip
     - zip -r ../application.zip . #Zip application to file name in root directory
   artifacts:
