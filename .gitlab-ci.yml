@@ -14,10 +14,13 @@ stages:
 variables:
   TF_VAR_project_name: ${PROJECT_NAME}
   TF_VAR_environment: ${ENVIRONMENT}
+  GIT_SUBMODULE_STRATEGY: recursive
   
 init:
   stage: init
   script:
+    - git submodule sync
+    - git submodule update --init
     - terraform init 
   artifacts:
     paths:
