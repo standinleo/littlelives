@@ -46,12 +46,12 @@ plan:
 apply:
   stage: apply
   script:
-    - echo "terraform plan done"
-   # - terraform apply -input=false "tfplan"
-   # - terraform output > terraform-output.txt
-  #artifacts:
-   # paths:
-    #  - terraform-output.txt
+   # - echo "terraform plan done"
+   - terraform apply -input=false "tfplan"
+   - terraform output > terraform-output.txt
+  artifacts:
+   paths:
+      - terraform-output.txt
  # when: manual
 
 build:
@@ -59,9 +59,9 @@ build:
   needs:
     - apply
   script:
-    #- git submodule sync
-    #- git submodule update --init
-    - git clone https://github.com/ditsmod/realworld.git
+    - git submodule sync
+    - git submodule update --init
+    #- git clone https://github.com/ditsmod/realworld.git
     - cd app
     - apk add zip
     - zip -r ../application.zip . #Zip application to file name in root directory
@@ -103,4 +103,5 @@ destroy:
   stage: destroy
   script:
     - terraform destroy --auto-approve
+
   when: manual
